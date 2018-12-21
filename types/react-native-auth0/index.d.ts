@@ -54,6 +54,7 @@ export interface PasswordRealmResponse {
     idToken: string;
     scope: string;
     tokenType: "Bearer";
+    refreshToken?: string;
 }
 
 export interface RefreshTokenParams {
@@ -67,6 +68,11 @@ export interface RevokeParams {
 
 export interface UserInfoParams {
     token: string;
+}
+
+export interface ResetPasswordParams {
+    email: string;
+    connection: string;
 }
 
 export interface UserInfo {
@@ -87,6 +93,7 @@ export class Auth {
     passwordRealm(params: PasswordRealmParams): Promise<PasswordRealmResponse>;
 
     refreshToken(params: RefreshTokenParams): Promise<any>;
+    resetPassword(params: ResetPasswordParams): Promise<any>;
     revoke(params: RevokeParams): Promise<any>;
     userInfo(params: UserInfoParams): Promise<UserInfo>;
 }
@@ -136,6 +143,9 @@ export interface AuthorizeParams {
     nonce?: string;
     audience?: string;
     scope?: string;
+    connection?: string;
+    language?: string;
+    prompt?: string;
 }
 
 export interface ClearSessionParams {
