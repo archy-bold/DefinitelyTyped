@@ -1,6 +1,9 @@
-// Type definitions for minio 5.0
+// Type definitions for minio 7.0
 // Project: https://github.com/minio/minio-js#readme
 // Definitions by: Barin Britva <https://github.com/barinbritva>
+//                 Lubomir Kaplan <https://github.com/castorw>
+//                 Panagiotis Kapros <https://github.com/loremaps>
+//                 Ben Watkins <https://github.com/OutdatedVersion>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 /// <reference types="node" />
@@ -18,9 +21,11 @@ export interface ClientOptions {
     endPoint: string;
     accessKey: string;
     secretKey: string;
-    secure?: boolean;
+    useSSL?: boolean;
     port?: number;
     region?: Region;
+    transport?: any;
+    sessionToken?: string;
 }
 
 export interface BucketItemFromList {
@@ -43,9 +48,9 @@ export interface BucketItem {
 
 export interface BucketItemStat {
     size: number;
-    contentType: string;
     etag: string;
-    lastModified: string;
+    lastModified: Date;
+    metaData: ItemBucketMetadata;
 }
 
 export interface IncompleteUploadedBucketItem {
@@ -56,6 +61,7 @@ export interface IncompleteUploadedBucketItem {
 
 export interface BucketStream<T> extends Stream {
     on(event: 'data', listener: (item: T) => void): this;
+    on(event: 'error', listener: (error: Error) => void): this;
 }
 
 export interface PostPolicyResult {
@@ -63,6 +69,10 @@ export interface PostPolicyResult {
     formData: {
         [key: string]: any;
     };
+}
+
+export interface ItemBucketMetadata {
+    [key: string]: any;
 }
 
 // No need to export this. But without it - linter error.
@@ -82,7 +92,7 @@ export class Client {
     makeBucket(bucketName: string, region: Region): Promise<void>;
 
     listBuckets(callback: ResultCallback<BucketItemFromList[]>): void;
-    listBuckets(): Promise<BucketItemFromList>;
+    listBuckets(): Promise<BucketItemFromList[]>;
 
     bucketExists(bucketName: string, callback: ResultCallback<boolean>): void;
     bucketExists(bucketName: string): Promise<boolean>;
@@ -109,11 +119,11 @@ export class Client {
 
     putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, callback: ResultCallback<string>): void;
     putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, size: number, callback: ResultCallback<string>): void;
-    putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, size: number, cotentType: string, callback: ResultCallback<string>): void;
-    putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, size?: number, cotentType?: string): Promise<string>;
+    putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, size: number, metaData: ItemBucketMetadata, callback: ResultCallback<string>): void;
+    putObject(bucketName: string, objectName: string, stream: Stream|Buffer|string, size?: number, metaData?: ItemBucketMetadata): Promise<string>;
 
-    fPutObject(bucketName: string, objectName: string, filePath: string, contentType: string, callback: ResultCallback<string>): void;
-    fPutObject(bucketName: string, objectName: string, filePath: string, contentType: string): Promise<string>;
+    fPutObject(bucketName: string, objectName: string, filePath: string, metaData: ItemBucketMetadata, callback: ResultCallback<string>): void;
+    fPutObject(bucketName: string, objectName: string, filePath: string, metaData: ItemBucketMetadata): Promise<string>;
 
     copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: CopyConditions, callback: ResultCallback<BucketItemCopy>): void;
     copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: CopyConditions): Promise<BucketItemCopy>;
@@ -123,6 +133,9 @@ export class Client {
 
     removeObject(bucketName: string, objectName: string, callback: NoResultCallback): void;
     removeObject(bucketName: string, objectName: string): Promise<void>;
+
+    removeObjects(bucketName: string, objectsList: string[], callback: NoResultCallback): void;
+    removeObjects(bucketName: string, objectsList: string[]): Promise<void>;
 
     removeIncompleteUpload(bucketName: string, objectName: string, callback: NoResultCallback): void;
     removeIncompleteUpload(bucketName: string, objectName: string): Promise<void>;

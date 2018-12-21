@@ -1,8 +1,8 @@
 import * as fs from 'mem-fs';
 
-const store = fs.create();
+const store: fs.Store = fs.create();
 const file = store.get('hello');
 
-store.add(file, 'hahahahah');
-
-store.each(file => console.dir(store.get(file.path)));
+const file2 = store.add(file)
+    .each(file => console.dir(store.get(file.path)))
+    .get('test');

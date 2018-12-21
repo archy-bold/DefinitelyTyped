@@ -1,9 +1,9 @@
 // These CSS typings adapted from TypeStyle: https://github.com/typestyle/typestyle
 
-import { Observable } from './observable';
+import { Observable } from 'indefinite-observable';
 import * as csstype from 'csstype';
 
-type Length = string | number;
+export type Length = string | number;
 
 export type ObservableProperties<P> = {
     [K in keyof P]: P[K] | Observable<P[K]>
